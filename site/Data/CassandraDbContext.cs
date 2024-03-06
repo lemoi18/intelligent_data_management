@@ -1,4 +1,5 @@
-﻿using Cassandra;
+﻿using System.Threading.Tasks;
+using Cassandra;
 using Microsoft.Extensions.Configuration;
 
 namespace Site.Data
@@ -24,6 +25,10 @@ namespace Site.Data
         public ISession GetSession()
         {
             return _session;
+        }
+        public async Task<RowSet> ExecuteAsync(Statement statement)
+        {
+            return await _session.ExecuteAsync(statement).ConfigureAwait(false);
         }
 
         // ... other Cassandra-related methods ...

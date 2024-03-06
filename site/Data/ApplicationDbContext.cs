@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Site.Models;
 
 namespace Site.Data
 {
@@ -12,5 +13,9 @@ namespace Site.Data
             : base(options)
         {
         }
+        
+        public DbSet<Stub> Stubs { get; set; }
+
+        
     }
 }

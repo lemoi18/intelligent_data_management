@@ -33,7 +33,7 @@ namespace Site
             if (_env.IsDevelopment())
             {
                 services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlite(
+                    options.UseNpgsql(
                         Configuration.GetConnectionString("DefaultConnection")));
                 services.AddDatabaseDeveloperPageExceptionFilter();
             }
@@ -83,7 +83,7 @@ namespace Site
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Data}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
         }

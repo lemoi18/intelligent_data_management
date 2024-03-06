@@ -25,7 +25,11 @@ The project uses an `appsettings.json` file for configuration. Here is the struc
   "ConnectionStrings": {
     "DefaultConnection": "Host=postgres;Port=5432;Username=postgres;Password=IKT453;Database=postgres;",
     "MongoDbConnection": "mongodb://mongoadmin:secret@mongodb:27017",
-    "CassandraConnection": "Contact Points=cassandra:9042;Default Keyspace=IKT453"
+  },  
+  "CassandraConnection": {
+    "ContactPoints": "cassandra",
+    "Port": 9042,
+    "Keyspace": "IKT453"
   },
   "Logging": {
     "LogLevel": {

@@ -1,7 +1,7 @@
 
 # Intelligent Data Management Project
 
-This project demonstrates the integration and management of multiple databases including PostgreSQL, MongoDB, and Cassandra, within a .NET application. 
+This project demonstrates the integration and management of multiple dockerized databases including PostgreSQL, MongoDB, and Cassandra, within a .NET application. 
 
 ## Description
 

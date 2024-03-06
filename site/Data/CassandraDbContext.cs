@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Cassandra;
 using Microsoft.Extensions.Configuration;
 
@@ -11,14 +12,16 @@ namespace Site.Data
 
         public CassandraService(IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString("CassandraConnection");
+            var contactPoints = configuration["CassandraConnection:ContactPoints"]; // e.g., "cassandra"
+            var port = Convert.ToInt32(configuration["CassandraConnection:Port"]); // e.g., 9042
+            var keyspace = configuration["CassandraConnection:Keyspace"]; // e.g., "IKT453"
+
             // Parse the connection string and create a Cluster instance
             _cluster = Cluster.Builder()
-                .AddContactPoints("cassandra")
-                .WithPort(9042)
-                .WithDefaultKeyspace("IKT453")
+                .AddContactPoints(contactPoints)
+                .WithPort(port)
+                .WithDefaultKeyspace(keyspace)
                 .Build();
-            // Connect to the cluster
             _session = _cluster.ConnectAndCreateDefaultKeyspaceIfNotExists();
         }
 

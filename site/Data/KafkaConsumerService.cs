@@ -1,0 +1,161 @@
+﻿
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Confluent.Kafka;
+using K4os.Compression.LZ4;
+using Site.Models;
+
+
+namespace Site.Data
+{
+
+
+
+    public class KafkaConsumerService : IHostedService, IDisposable
+    {
+        private readonly ILogger<KafkaConsumerService> _logger;
+        private readonly KafkaConfiguration _kafkaConfiguration;
+        private IConsumer<string, string> _consumer;
+
+        public KafkaConsumerService(ILogger<KafkaConsumerService> logger, IOptions<KafkaConfiguration> kafkaConfigurationOptions)
+        {
+            _logger = logger ?? throw new ArgumentException(nameof(logger));
+            _kafkaConfiguration = kafkaConfigurationOptions?.Value ?? throw new ArgumentException(nameof(kafkaConfigurationOptions));
+            
+            Init();
+        }
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    _logger.LogInformation("Kafka Consumer Service has started.");
+
+                    _consumer.Subscribe(new List<string>() { _kafkaConfiguration.Topic });
+
+                    await Consume(cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, ex.Message);
+                }
+            }
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Kafka Consumer Service is stopping.");
+
+            _consumer.Close();
+
+            await Task.CompletedTask;
+        }
+
+        public void Dispose()
+        {
+            _consumer.Dispose();
+        }
+
+        private void Init()
+        {
+            //var pemFileWithKey = "./keystore/secure.pem";
+
+            var config = new ConsumerConfig()
+            {
+                BootstrapServers = _kafkaConfiguration.Brokers,
+
+                //SslCaLocation = pemFileWithKey,
+                //SslCertificateLocation = pemFileWithKey,
+                //SslKeyLocation = pemFileWithKey,
+
+                Debug = "broker,topic,msg",
+
+                GroupId = _kafkaConfiguration.ConsumerGroup,
+                SecurityProtocol = SecurityProtocol.Plaintext,
+                EnableAutoCommit = false,
+                StatisticsIntervalMs = 5000,
+                SessionTimeoutMs = 6000,
+                AutoOffsetReset = AutoOffsetReset.Earliest,
+                EnablePartitionEof = true
+            };
+
+            _consumer = new ConsumerBuilder<string, string>(config).SetStatisticsHandler((_, kafkaStatistics) => LogKafkaStats(kafkaStatistics)).
+                SetErrorHandler((_, e) => LogKafkaError(e)).Build();
+        }
+
+        private void LogKafkaStats(string kafkaStatistics)
+        {
+            var stats = JsonConvert.DeserializeObject<KafkaStatistics>(kafkaStatistics);
+
+            if (stats?.topics != null && stats.topics.Count > 0)
+            {
+                foreach (var topic in stats.topics)
+                {
+                    foreach (var partition in topic.Value.Partitions)
+                    {
+                        Task.Run(() =>
+                        {
+                            var logMessage = $"FxRates:KafkaStats Topic: {topic.Key} Partition: {partition.Key} PartitionConsumerLag: {partition.Value.ConsumerLag}";
+                            _logger.LogInformation(logMessage);
+                        });
+                    }
+                }
+            }
+        }
+
+        private void LogKafkaError(Error ex)
+        {
+            Task.Run(() =>
+            {
+                var error = $"Kafka Exception: ErrorCode:[{ex.Code}] Reason:[{ex.Reason}] Message:[{ex.ToString()}]";
+                _logger.LogError(error);
+            });
+        }
+
+        private async Task Consume(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    var consumeResult = _consumer.Consume(cancellationToken);
+
+                    if (consumeResult?.Message == null) continue;
+
+                    if (consumeResult.Topic.Equals(_kafkaConfiguration.Topic))
+                    {
+                        await Task.Run(() =>
+                        {
+                            var compressedBytes = Convert.FromBase64String(consumeResult.Message.Value);
+                            var jsonBytes = new byte[compressedBytes.Length * 3]; // Initial buffer size
+                            int decompressedLength = 0;
+                    
+                            // Decompress into the buffer
+                            while (decompressedLength == 0)
+                            {
+                                jsonBytes = new byte[jsonBytes.Length * 2]; // Double the buffer size
+                                decompressedLength = LZ4Codec.Decode(compressedBytes, jsonBytes);
+                            }
+                    
+                            var json = Encoding.UTF8.GetString(jsonBytes, 0, decompressedLength);
+                            _logger.LogInformation($"[{consumeResult.Message.Key}] {consumeResult.Topic} - {json}");
+                        }, cancellationToken).ConfigureAwait(false);
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, ex.Message);
+                }
+            }
+        }
+    }
+}

@@ -26,6 +26,7 @@ namespace Site
                 CassandraDbInitializer.Initialize(Cassandra.GetSession());
                 var mongoClient = services.ServiceProvider.GetRequiredService<IMongoClient>();
                 MongoDBInitializer.Initialize(mongoClient);
+                
             }
   
             host.Run();

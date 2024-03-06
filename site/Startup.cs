@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -48,6 +49,10 @@ namespace Site
             
             services.AddSingleton<CassandraService>();
             services.AddSingleton<IMongoClient>(new MongoClient(Configuration.GetConnectionString("MongoDbConnection")));
+            services.Configure<KafkaConfiguration>(Configuration.GetSection(nameof(KafkaConfiguration)));
+            
+            services.AddHostedService<KafkaProducerService>();
+            services.AddHostedService<KafkaConsumerService>();
 
             services.AddControllersWithViews();
         }
@@ -83,7 +88,7 @@ namespace Site
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Data}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
         }

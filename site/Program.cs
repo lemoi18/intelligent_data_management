@@ -28,6 +28,7 @@ namespace Site
                 MongoDBInitializer.Initialize(mongoClient);
                 
             }
+            
   
             host.Run();
         }

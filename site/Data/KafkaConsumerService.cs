@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
-using K4os.Compression.LZ4;
+using LZ4;
 using Site.Models;
 
 
@@ -134,18 +134,7 @@ namespace Site.Data
                     {
                         await Task.Run(() =>
                         {
-                            var compressedBytes = Convert.FromBase64String(consumeResult.Message.Value);
-                            var jsonBytes = new byte[compressedBytes.Length * 3]; // Initial buffer size
-                            int decompressedLength = 0;
-                    
-                            // Decompress into the buffer
-                            while (decompressedLength == 0)
-                            {
-                                jsonBytes = new byte[jsonBytes.Length * 2]; // Double the buffer size
-                                decompressedLength = LZ4Codec.Decode(compressedBytes, jsonBytes);
-                            }
-                    
-                            var json = Encoding.UTF8.GetString(jsonBytes, 0, decompressedLength);
+                            var json = Encoding.UTF8.GetString(LZ4Codec.Unwrap(Convert.FromBase64String(consumeResult.Message.Value)));
                             _logger.LogInformation($"[{consumeResult.Message.Key}] {consumeResult.Topic} - {json}");
                         }, cancellationToken).ConfigureAwait(false);
 

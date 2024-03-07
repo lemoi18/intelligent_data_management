@@ -44,15 +44,19 @@ namespace Site
                     options.UseNpgsql(
                         Configuration.GetConnectionString("DefaultConnection")));
             }
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            // services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+            //     .AddEntityFrameworkStores<ApplicationDbContext>();
             
             services.AddSingleton<CassandraService>();
             services.AddSingleton<IMongoClient>(new MongoClient(Configuration.GetConnectionString("MongoDbConnection")));
-            services.Configure<KafkaConfiguration>(Configuration.GetSection(nameof(KafkaConfiguration)));
+            /*services.Configure<KafkaConfiguration>(Configuration.GetSection(nameof(KafkaConfiguration)));
             
             services.AddHostedService<KafkaProducerService>();
-            services.AddHostedService<KafkaConsumerService>();
+            services.AddHostedService<KafkaConsumerService>();*/
+            
+            services.AddHostedService<HeartbeatService>();
+            
+            services.AddRazorPages(); // Add this line
 
             services.AddControllersWithViews();
         }
@@ -73,7 +77,7 @@ namespace Site
             	using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
                 {
                     var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    context.Database.Migrate();
+                    // context.Database.Migrate();
                 }
             }
             app.UseHttpsRedirection();
@@ -81,8 +85,8 @@ namespace Site
 
             app.UseRouting();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+            // app.UseAuthentication();
+            // app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

@@ -67,7 +67,7 @@ namespace Site.Data
                 //SslCertificateLocation = pemFileWithKey,
                 //SslKeyLocation = pemFileWithKey,
 
-                //Debug = "broker,topic,msg",
+                Debug = "broker,topic,msg",
 
                 SecurityProtocol = SecurityProtocol.Plaintext,
                 EnableDeliveryReports = false,
@@ -100,6 +100,8 @@ namespace Site.Data
                                 Value = Convert.ToBase64String(compressedBytes)
                             };
                             await _producer.ProduceAsync(_kafkaConfiguration.Topic, msg).ConfigureAwait(false);
+                            await Task.Delay(TimeSpan.FromMinutes(5), cancellationToken).ConfigureAwait(false);
+
                         }
                     }
                 }

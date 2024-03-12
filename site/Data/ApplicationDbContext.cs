@@ -7,7 +7,8 @@ using Site.Models;
 
 namespace Site.Data
 {
-    public class ApplicationDbContext : DbContext
+    // to make this not identity remove the Identity
+    public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

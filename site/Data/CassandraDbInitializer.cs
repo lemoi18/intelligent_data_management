@@ -11,12 +11,12 @@ namespace Site.Data
             // Create keyspace and tables if they do not exist
             session.Execute("CREATE KEYSPACE IF NOT EXISTS my_keyspace WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1 };");
             session.Execute(@"
-        CREATE TABLE IF NOT EXISTS my_keyspace.stubs (
-            id int PRIMARY KEY,
-            first_name text,
-            last_name text,
-            birthdate timestamp
-        );");
+                CREATE TABLE IF NOT EXISTS my_keyspace.stubs (
+                    id int PRIMARY KEY,
+                    first_name text,
+                    last_name text,
+                    birthdate timestamp
+                );");
 
             // Seed data
             var preparedInsert = session.Prepare("INSERT INTO my_keyspace.stubs (id, first_name, last_name, birthdate) VALUES (?, ?, ?, ?)");
@@ -35,13 +35,12 @@ namespace Site.Data
                 var resultSet = session.Execute(boundSelect);
 
                 // Only insert if the ID does not exist
-                if (!resultSet.Any())
+                if (!resultSet.IsExhausted())
                 {
                     var boundInsert = preparedInsert.Bind(stub.Id, stub.FirstName, stub.LastName, stub.Birthdate);
                     session.Execute(boundInsert);
                 }
             }
         }
-
     }
 }

@@ -39,13 +39,16 @@ namespace Site.Data
 
         private void DoWork(object state)
         {
-            // Implement your checks here
-            CheckDatabaseAvailability(_serviceProvider);
-            CheckMongoDbAvailability(_serviceProvider);
-            CheckCassandraAvailability(_serviceProvider);
-
-            // ... other checks
+            // This will run the asynchronous method in a non-blocking way
+            
+                CheckDatabaseAvailability(_serviceProvider);
+                CheckMongoDbAvailability(_serviceProvider);
+                CheckCassandraAvailability(_serviceProvider); 
+                // ... other checks
+            
         }
+
+
 
         // Implement your individual check methods
         private void CheckDatabaseAvailability(IServiceProvider services)
@@ -67,13 +70,15 @@ namespace Site.Data
             }
         }
 
-        private async Task CheckCassandraAvailability(IServiceProvider services)
+        private void CheckCassandraAvailability(IServiceProvider services)
         {
             using (var scope = services.CreateScope())
             {
                 var cassandraService = scope.ServiceProvider.GetRequiredService<CassandraService>();
 
-                var result = await cassandraService.CheckConnectionAsync();
+                // Call the async method synchronously
+                var result = cassandraService.CheckConnectionAsync().GetAwaiter().GetResult();
+        
                 if (result.IsSuccessful)
                 {
                     _logger.LogInformation("Cassandra is available.");
@@ -85,6 +90,7 @@ namespace Site.Data
                 }
             }
         }
+
 
 
 

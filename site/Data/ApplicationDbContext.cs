@@ -16,7 +16,11 @@ namespace Site.Data
         }
         
         public DbSet<Stub> Stubs { get; set; }
-
+        public DbSet<Sale> Sales { get; set; }
+        public DbSet<Date> Dates { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Country> Countries { get; set; }
         
     }
 }

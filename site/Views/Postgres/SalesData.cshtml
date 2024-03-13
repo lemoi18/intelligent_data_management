@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Site.Models.Sale>
+
+@{
+    ViewData["Title"] = "SalesData";
+}
+
+<h1>Sales Data</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.InvoiceNo)</th>
+        <th>@Html.DisplayNameFor(model => model.StockCode)</th>
+        <th>@Html.DisplayNameFor(model => model.Quantity)</th>
+        <th>@Html.DisplayNameFor(model => model.UnitPrice)</th>
+        <th>@Html.DisplayNameFor(model => model.TotalPrice)</th>
+        <th>@Html.DisplayNameFor(model => model.InvoiceDate)</th>
+        <th>@Html.DisplayNameFor(model => model.Customer)</th>
+        <th>@Html.DisplayNameFor(model => model.Country)</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@Html.DisplayFor(modelItem => item.InvoiceNo)</td>
+            <td>@Html.DisplayFor(modelItem => item.StockCode)</td>
+            <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
+            <td>@Html.DisplayFor(modelItem => item.UnitPrice)</td>
+            <td>@Html.DisplayFor(modelItem => item.TotalPrice)</td>
+            <td>@Html.DisplayFor(modelItem => item.InvoiceDate)</td>
+            <td>@Html.DisplayFor(modelItem => item.Customer.CustomerID)</td>
+            <td>@Html.DisplayFor(modelItem => item.Country.CountryName)</td>
+        </tr>
+    }
+    </tbody>
+</table>

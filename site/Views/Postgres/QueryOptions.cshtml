@@ -1,0 +1,31 @@
+﻿
+@{
+    ViewData["Title"] = "QueryOptions";
+}
+
+<h1>Query Options</h1>
+
+
+
+<div>
+    <!-- Button 0 -->
+    <form method="post" action="@Url.Action("SalesData", "Postgres")">
+        <button type="submit" class="btn btn-primary">Query 1</button>
+    </form>
+
+   <!-- Button 1 - SalesByProduct -->
+   <form method="post" action="@Url.Action("SalesByProduct", "Postgres")">
+       <input type="text" name="productStockCode" value="22629" hidden />
+       <button type="submit" class="btn btn-primary">SalesByProduct: 22629</button>
+   </form>
+
+
+       <!-- Button 2 - TotalSalesByCountry -->
+
+   <form method="post" action="@Url.Action("TotalSalesByCountry", "Postgres")">
+       <input type="number" name="year" value="2011" hidden />
+       <button type="submit" class="btn btn-primary">TotalSalesByCountry in 2020</button>
+   </form>
+    
+    <!-- ... up to Button 10 -->
+</div>

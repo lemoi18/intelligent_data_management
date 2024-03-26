@@ -38,6 +38,7 @@ namespace Site.Models
         public virtual Country Country { get; set; }
         public virtual Product Product { get; set; }
     }
+	
 
 
     public class Date
@@ -104,3 +105,20 @@ namespace Site.Models
         public string CountryName { get; set; }
     }
 }
+
+
+public class SalesByProductViewModel
+{
+    public string InvoiceNo { get; set; }
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+    public decimal TotalPrice { get; set; }
+    public DateTime InvoiceDate { get; set; }
+}
+
+public class TotalSalesByCountryViewModel
+{
+    public string Country { get; set; }
+    public decimal TotalSales { get; set; }
+}
+

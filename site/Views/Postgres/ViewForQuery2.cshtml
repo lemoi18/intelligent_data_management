@@ -1,0 +1,26 @@
+﻿@model IEnumerable<TotalSalesByCountryViewModel>
+
+
+@{
+    ViewData["Title"] = "Total Sales by Country";
+}
+
+<h1>Total Sales by Country</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Country</th>
+        <th>Total Sales</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var group in Model)
+    {
+        <tr>
+            <td>@group.Country</td>
+            <td>@group.TotalSales</td>
+        </tr>
+    }
+    </tbody>
+</table>
